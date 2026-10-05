@@ -184,6 +184,150 @@
     .btn-secondary:active {
       transform: scale(0.98);
     }
+
+    /* --- 3D Dice Arena Styles --- */
+    .dice-arena {
+      position: relative;
+      height: 180px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 800px;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 14px;
+      background: radial-gradient(circle at center, #f1f5f9 0%, #cbd5e1 100%);
+      border: 1px solid #cbd5e1;
+      box-shadow: inset 0 3px 15px rgba(0,0,0,0.05);
+    }
+    .dice-camera {
+      display: flex;
+      gap: 30px;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .die {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .face {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.7);
+      border-radius: 8px;
+    }
+    
+    /* Dot rendering */
+    .dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #1e3a8a;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .dot.c { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .dot.tl { top: 10px; left: 10px; }
+    .dot.tr { top: 10px; right: 10px; }
+    .dot.bl { bottom: 10px; left: 10px; }
+    .dot.br { bottom: 10px; right: 10px; }
+    .dot.ml { top: 50%; left: 10px; transform: translateY(-50%); }
+    .dot.mr { top: 50%; right: 10px; transform: translateY(-50%); }
+
+    /* Initial layout of faces */
+    .front  { transform: rotateY(0deg) translateZ(30px); }
+    .back   { transform: rotateY(180deg) translateZ(30px); }
+    .right  { transform: rotateY(90deg) translateZ(30px); }
+    .left   { transform: rotateY(-90deg) translateZ(30px); }
+    .top    { transform: rotateX(90deg) translateZ(30px); }
+    .bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+    /* Dice States & Animations */
+    .dice-arena.state-idle .dice-camera {
+      transform: translateZ(-150px) rotateX(-10deg) scale(0.85);
+    }
+    .dice-arena.state-idle .die {
+      animation: floatIdle 5s ease-in-out infinite, spinIdle 12s linear infinite;
+    }
+    .dice-arena.state-idle #die2 {
+      animation-delay: -2.5s, -4s; 
+    }
+
+    .dice-arena.state-rolling .dice-camera {
+      transform: translateZ(120px) rotateX(15deg) scale(1.3);
+    }
+    .dice-arena.state-rolling .die {
+      animation: spinCrazy 0.3s linear infinite;
+    }
+    .dice-arena.state-rolling .dice-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dice-arena.state-thrown .dice-camera {
+      transform: translateZ(0px) rotateX(0deg) scale(1);
+      transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    .dice-hint {
+      position: absolute;
+      bottom: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+      background: rgba(255,255,255,0.75);
+      padding: 4px 12px;
+      border-radius: 20px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    @keyframes floatIdle {
+      0%, 100% { top: 0px; }
+      50% { top: -15px; }
+    }
+    @keyframes spinIdle {
+      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(360deg) rotateY(720deg) rotateZ(360deg); }
+    }
+    @keyframes spinCrazy {
+      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(1080deg) rotateY(1440deg) rotateZ(720deg); }
+    }
+
+    /* Target Rotations for Results */
+    .die.show-1 { transform: rotateY(0deg) rotateX(0deg); }
+    .die.show-6 { transform: rotateY(180deg); }
+    .die.show-2 { transform: rotateX(-90deg); }
+    .die.show-5 { transform: rotateX(90deg); }
+    .die.show-3 { transform: rotateY(-90deg); }
+    .die.show-4 { transform: rotateY(90deg); }
+
+    /* Shatter Effect */
+    .die.shatter .face {
+      transition: transform 0.6s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.5s ease-out;
+      opacity: 0;
+    }
+    .die.shatter .front  { transform: translateZ(150px) rotateX(180deg) scale(0.2); }
+    .die.shatter .back   { transform: translateZ(-150px) rotateX(-180deg) scale(0.2); }
+    .die.shatter .right  { transform: translateX(150px) rotateY(180deg) scale(0.2); }
+    .die.shatter .left   { transform: translateX(-150px) rotateY(-180deg) scale(0.2); }
+    .die.shatter .top    { transform: translateY(-150px) rotateX(180deg) scale(0.2); }
+    .die.shatter .bottom { transform: translateY(150px) rotateX(-180deg) scale(0.2); }
+
+
+    /* --- Result & History Styles --- */
     .result-section {
       margin-bottom: 24px;
     }
@@ -486,6 +630,34 @@
       </div>
     </section>
 
+    <!-- 3D Dice Arena -->
+    <div id="dice-arena" class="dice-arena state-idle" onclick="if(window.diceState==='rolling') throwDice()">
+      <div class="dice-camera" id="dice-camera">
+        
+        <!-- Die 1 -->
+        <div class="die" id="die1">
+          <div class="face front"> <div class="dot c"></div> </div>
+          <div class="face top"> <div class="dot tl"></div> <div class="dot br"></div> </div>
+          <div class="face right"> <div class="dot tl"></div> <div class="dot c"></div> <div class="dot br"></div> </div>
+          <div class="face left"> <div class="dot tl"></div> <div class="dot tr"></div> <div class="dot bl"></div> <div class="dot br"></div> </div>
+          <div class="face bottom"> <div class="dot tl"></div> <div class="dot tr"></div> <div class="dot c"></div> <div class="dot bl"></div> <div class="dot br"></div> </div>
+          <div class="face back"> <div class="dot tl"></div> <div class="dot ml"></div> <div class="dot bl"></div> <div class="dot tr"></div> <div class="dot mr"></div> <div class="dot br"></div> </div>
+        </div>
+
+        <!-- Die 2 -->
+        <div class="die" id="die2">
+          <div class="face front"> <div class="dot c"></div> </div>
+          <div class="face top"> <div class="dot tl"></div> <div class="dot br"></div> </div>
+          <div class="face right"> <div class="dot tl"></div> <div class="dot c"></div> <div class="dot br"></div> </div>
+          <div class="face left"> <div class="dot tl"></div> <div class="dot tr"></div> <div class="dot bl"></div> <div class="dot br"></div> </div>
+          <div class="face bottom"> <div class="dot tl"></div> <div class="dot tr"></div> <div class="dot c"></div> <div class="dot bl"></div> <div class="dot br"></div> </div>
+          <div class="face back"> <div class="dot tl"></div> <div class="dot ml"></div> <div class="dot bl"></div> <div class="dot tr"></div> <div class="dot mr"></div> <div class="dot br"></div> </div>
+        </div>
+
+      </div>
+      <div class="dice-hint" id="ui-dice-hint">點擊提早投出！</div>
+    </div>
+
     <!-- Result Display -->
     <section class="result-section" aria-live="polite">
       <div id="result-container">
@@ -510,102 +682,18 @@
   <script>
     // Embedded activities data from activities.json (strictly unmodified)
     const ACTIVITIES = [
-      {
-        "id": "A01",
-        "name_zh": "整理書包",
-        "name_en": "Organize your bag",
-        "location_type": "indoor",
-        "minutes": 10,
-        "energy": "low"
-      },
-      {
-        "id": "A02",
-        "name_zh": "畫一張小卡",
-        "name_en": "Draw a small card",
-        "location_type": "indoor",
-        "minutes": 15,
-        "energy": "low"
-      },
-      {
-        "id": "A03",
-        "name_zh": "寫三句讀書筆記",
-        "name_en": "Write three study notes",
-        "location_type": "indoor",
-        "minutes": 10,
-        "energy": "low"
-      },
-      {
-        "id": "A04",
-        "name_zh": "安靜讀兩頁書",
-        "name_en": "Read two pages quietly",
-        "location_type": "indoor",
-        "minutes": 15,
-        "energy": "low"
-      },
-      {
-        "id": "A05",
-        "name_zh": "排好明日待辦",
-        "name_en": "Plan tomorrow’s tasks",
-        "location_type": "indoor",
-        "minutes": 20,
-        "energy": "low"
-      },
-      {
-        "id": "A06",
-        "name_zh": "整理本機練習檔",
-        "name_en": "Organize practice files",
-        "location_type": "indoor",
-        "minutes": 30,
-        "energy": "medium"
-      },
-      {
-        "id": "A07",
-        "name_zh": "在合適位置慢走",
-        "name_en": "Take a gentle walk in a suitable area",
-        "location_type": "outdoor",
-        "minutes": 15,
-        "energy": "low"
-      },
-      {
-        "id": "A08",
-        "name_zh": "觀察天空並畫草圖",
-        "name_en": "Observe the sky and sketch",
-        "location_type": "outdoor",
-        "minutes": 20,
-        "energy": "low"
-      },
-      {
-        "id": "A09",
-        "name_zh": "在合適位置快走",
-        "name_en": "Take a brisk walk in a suitable area",
-        "location_type": "outdoor",
-        "minutes": 30,
-        "energy": "medium"
-      },
-      {
-        "id": "A10",
-        "name_zh": "規劃小組練習",
-        "name_en": "Plan a group exercise",
-        "location_type": "indoor",
-        "minutes": 45,
-        "energy": "medium"
-      },
-      {
-        "id": "A11",
-        "name_zh": "記錄自然色彩",
-        "name_en": "Record colors in nature",
-        "location_type": "outdoor",
-        "minutes": 45,
-        "energy": "low"
-      },
-      {
-        "id": "A12",
-        "name_zh": "構思下一次社團活動",
-        "name_en": "Brainstorm a future club activity",
-        "location_type": "indoor",
-        "minutes": 60,
-        "energy": "medium"
-      }
+      { "id": "A01", "name_zh": "整理書包", "name_en": "Organize your bag", "location_type": "indoor", "minutes": 10, "energy": "low" },
+      { "id": "A02", "name_zh": "畫一張小卡", "name_en": "Draw a small card", "location_type": "indoor", "minutes": 15, "energy": "low" },
+      { "id": "A03", "name_zh": "寫三句讀書筆記", "name_en": "Write three study notes", "location_type": "indoor", "minutes": 10, "energy": "low" },
+      { "id": "A04", "name_zh": "安靜讀兩頁書", "name_en": "Read two pages quietly", "location_type": "indoor", "minutes": 15, "energy": "low" },
+      { "id": "A05", "name_zh": "排好明日待辦", "name_en": "Plan tomorrow’s tasks", "location_type": "indoor", "minutes": 20, "energy": "low" },
+      { "id": "A06", "name_zh": "整理本機練習檔", "name_en": "Organize practice files", "location_type": "indoor", "minutes": 30, "energy": "medium" },
+      { "id": "A07", "name_zh": "在合適位置慢走", "name_en": "Take a gentle walk in a suitable area", "location_type": "outdoor", "minutes": 15, "energy": "low" },
+      { "id": "A08", "name_zh": "觀察天空並畫草圖", "name_en": "Observe the sky and sketch", "location_type": "outdoor", "minutes": 20, "energy": "low" },
+      { "id": "A09", "name_zh": "在合適位置快走", "name_en": "Take a brisk walk in a suitable area", "location_type": "outdoor", "minutes": 30, "energy": "medium" },
+      { "id": "A10", "name_zh": "規劃小組練習", "name_en": "Plan a group exercise", "location_type": "indoor", "minutes": 45, "energy": "medium" },
+      { "id": "A11", "name_zh": "記錄自然色彩", "name_en": "Record colors in nature", "location_type": "outdoor", "minutes": 45, "energy": "low" },
+      { "id": "A12", "name_zh": "構思下一次社團活動", "name_en": "Brainstorm a future club activity", "location_type": "indoor", "minutes": 60, "energy": "medium" }
     ];
 
     // Multilingual texts
@@ -629,6 +717,8 @@
         btnPick: "🎲 幫我選",
         btnReset: "🔄 重設篩選",
         placeholder: "請設定上方條件後，點擊「幫我選」開始抽選！",
+        rolling: "骰子瘋狂轉動中...",
+        diceHint: "點擊提早投出！",
         noMatch: "沒有符合條件的活動",
         resultCategory: "抽選結果",
         historyTitle: "最近 5 次成功抽選",
@@ -636,14 +726,8 @@
         emptyHistory: "尚無成功抽選紀錄",
         badgeLatest: "最新",
         unitMinutes: "分鐘",
-        locText: {
-          indoor: "室內",
-          outdoor: "室外"
-        },
-        energyText: {
-          low: "低強度",
-          medium: "中強度"
-        }
+        locText: { indoor: "室內", outdoor: "室外" },
+        energyText: { low: "低強度", medium: "中強度" }
       },
       en: {
         pageTitle: "What Should I Do During Break?",
@@ -664,6 +748,8 @@
         btnPick: "🎲 Pick for Me",
         btnReset: "🔄 Reset Filters",
         placeholder: "Set your filters above and click \"Pick for Me\" to draw an activity!",
+        rolling: "Dice are rolling...",
+        diceHint: "Click to throw early!",
         noMatch: "No matching activities found",
         resultCategory: "Selected Activity",
         historyTitle: "Recent 5 Successful Draws",
@@ -671,31 +757,28 @@
         emptyHistory: "No draw history yet",
         badgeLatest: "Latest",
         unitMinutes: "mins",
-        locText: {
-          indoor: "Indoor",
-          outdoor: "Outdoor"
-        },
-        energyText: {
-          low: "Low",
-          medium: "Medium"
-        }
+        locText: { indoor: "Indoor", outdoor: "Outdoor" },
+        energyText: { low: "Low", medium: "Medium" }
       }
     };
 
     // State
     let currentLang = 'zh';
-    let currentResult = null; // null | 'no_match' | activity object
+    let currentResult = null; // null | 'no_match' | 'rolling' | activity object
     let history = []; // Max 5 items
+    
+    // Dice Animation State
+    window.diceState = 'idle'; // 'idle' | 'rolling' | 'thrown'
+    let rollTimeout = null;
+    let pendingResult = null;
 
     function setLanguage(lang) {
       currentLang = lang;
       document.documentElement.lang = (lang === 'zh') ? 'zh-Hant' : 'en';
 
-      // Update switcher buttons
       document.getElementById('btn-lang-zh').classList.toggle('active', lang === 'zh');
       document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
 
-      // Update static texts
       const t = I18N[lang];
       document.title = (lang === 'zh') ? "課間我想做什麼？ | Campus Activity Picker" : "What Should I Do During Break? | Activity Picker";
       document.getElementById('ui-title').textContent = t.pageTitle;
@@ -719,11 +802,12 @@
 
       document.getElementById('btn-pick').textContent = t.btnPick;
       document.getElementById('btn-reset').textContent = t.btnReset;
+      
+      document.getElementById('ui-dice-hint').textContent = t.diceHint;
 
       document.getElementById('ui-history-title').textContent = t.historyTitle;
       document.getElementById('btn-clear-history').textContent = t.btnClearHistory;
 
-      // Re-render dynamic areas
       renderResult();
       renderHistory();
     }
@@ -741,12 +825,9 @@
     }
 
     function pickActivity() {
-      const filters = getSelectedFilters();
+      if (window.diceState === 'rolling') return;
 
-      // Filter activities based on all 3 conditions simultaneously:
-      // 1. location: 'all' or matches activity.location_type
-      // 2. minutes: activity.minutes <= selected maxTime
-      // 3. energy: 'all' or matches activity.energy
+      const filters = getSelectedFilters();
       const matched = ACTIVITIES.filter(item => {
         const matchLoc = (filters.location === 'all') || (item.location_type === filters.location);
         const matchTime = item.minutes <= filters.maxTime;
@@ -756,27 +837,96 @@
 
       if (matched.length === 0) {
         currentResult = 'no_match';
-      } else {
-        const randomIndex = Math.floor(Math.random() * matched.length);
-        const selected = matched[randomIndex];
-        currentResult = selected;
+        renderResult();
+        return;
+      }
 
-        // Add to history (newest first, max 5)
-        history.unshift(selected);
+      const randomIndex = Math.floor(Math.random() * matched.length);
+      pendingResult = matched[randomIndex];
+      
+      startDiceRoll();
+    }
+
+    function startDiceRoll() {
+      window.diceState = 'rolling';
+      currentResult = 'rolling';
+      renderResult();
+
+      const arena = document.getElementById('dice-arena');
+      arena.className = 'dice-arena state-rolling';
+      
+      const die1 = document.getElementById('die1');
+      const die2 = document.getElementById('die2');
+      die1.className = 'die';
+      die2.className = 'die';
+
+      clearTimeout(rollTimeout);
+      rollTimeout = setTimeout(() => {
+        if (window.diceState === 'rolling') throwDice();
+      }, 5000);
+    }
+
+    function throwDice() {
+      if (window.diceState !== 'rolling') return;
+      window.diceState = 'thrown';
+      clearTimeout(rollTimeout);
+
+      const arena = document.getElementById('dice-arena');
+      arena.className = 'dice-arena state-thrown';
+
+      // Maps A01-A12 to numbers 1-12
+      const targetSum = parseInt(pendingResult.id.substring(1), 10);
+      let d1, d2, shatter = false;
+
+      if (targetSum === 1) {
+        d1 = 1;
+        d2 = 6; // Will shatter, value doesn't matter much
+        shatter = true;
+      } else {
+        const minD1 = Math.max(1, targetSum - 6);
+        const maxD1 = Math.min(6, targetSum - 1);
+        d1 = Math.floor(Math.random() * (maxD1 - minD1 + 1)) + minD1;
+        d2 = targetSum - d1;
+      }
+
+      const die1 = document.getElementById('die1');
+      const die2 = document.getElementById('die2');
+
+      die1.classList.add('show-' + d1);
+      if (shatter) {
+        die2.classList.add('shatter');
+      } else {
+        die2.classList.add('show-' + d2);
+      }
+
+      // Allow throw animation to complete before revealing text result
+      setTimeout(() => {
+        currentResult = pendingResult;
+        history.unshift(currentResult);
         if (history.length > 5) {
           history = history.slice(0, 5);
         }
-      }
 
-      renderResult();
-      renderHistory();
+        renderResult();
+        renderHistory();
+
+        // Let dice revert to idle naturally after result has been visible for a few seconds
+        setTimeout(() => {
+          if (window.diceState === 'thrown') {
+            window.diceState = 'idle';
+            arena.className = 'dice-arena state-idle';
+            die1.className = 'die';
+            die2.className = 'die';
+          }
+        }, 4000);
+
+      }, 1000);
     }
 
     function resetFilters() {
       document.getElementById('loc-all').checked = true;
       document.getElementById('time-30').checked = true;
       document.getElementById('energy-all').checked = true;
-      // Note: reset does NOT clear history
     }
 
     function clearHistory() {
@@ -792,6 +942,15 @@
         container.innerHTML = `
           <div class="result-box result-placeholder">
             ${escapeHtml(t.placeholder)}
+          </div>
+        `;
+        return;
+      }
+
+      if (currentResult === 'rolling') {
+        container.innerHTML = `
+          <div class="result-box result-placeholder" style="color: #3b82f6; border-color: #93c5fd; background: #eff6ff;">
+            🎲 ${escapeHtml(t.rolling)}
           </div>
         `;
         return;

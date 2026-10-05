@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>課間我想做什麼？ | Campus Activity Picker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.5;
+      padding: 24px 16px 48px;
+    }
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .lang-switcher {
+      display: inline-flex;
+      background: #e2e8f0;
+      border-radius: 20px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .lang-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 14px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+    .lang-btn.active {
+      background: #ffffff;
+      color: #1e293b;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .disclaimer-banner {
+      background-color: #fef3c7;
+      border: 1px solid #fcd34d;
+      color: #92400e;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .filter-section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: #475569;
+    }
+    .segmented-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .segmented-option {
+      position: relative;
+    }
+    .segmented-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .segmented-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #475569;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      min-height: 44px;
+    }
+    .segmented-option input[type="radio"]:checked + label {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+    .segmented-option input[type="radio"]:focus-visible + label {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      min-height: 48px;
+      user-select: none;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+      flex: 2;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    .btn-secondary {
+      background: #f8fafc;
+      color: #475569;
+      border: 1.5px solid #cbd5e1;
+      flex: 1;
+    }
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+      border-color: #94a3b8;
+    }
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+    .result-section {
+      margin-bottom: 24px;
+    }
+    .result-box {
+      border-radius: 14px;
+      padding: 22px;
+      transition: all 0.25s ease;
+    }
+    .result-placeholder {
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      color: #64748b;
+      text-align: center;
+      padding: 32px 20px;
+      font-size: 0.95rem;
+    }
+    .result-success {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      color: #166534;
+      box-shadow: 0 4px 14px rgba(22, 101, 52, 0.08);
+    }
+    .result-empty {
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      color: #991b1b;
+      text-align: center;
+      padding: 26px 20px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .result-badge-id {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+      border: 1px solid #bbf7d0;
+    }
+    .result-title-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #15803d;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .result-activity-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #14532d;
+      margin-bottom: 16px;
+      line-height: 1.35;
+    }
+    .result-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: #ffffff;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      gap: 6px;
+    }
+    .history-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .history-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #334155;
+    }
+    .btn-clear {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-clear:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      gap: 12px;
+      transition: border-color 0.2s ease;
+    }
+    .history-item.is-newest {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+    .history-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    .history-id {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.8rem;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #334155;
+      flex-shrink: 0;
+    }
+    .history-item.is-newest .history-id {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+    .history-name {
+      font-weight: 600;
+      color: #1e293b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .history-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #64748b;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .newest-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #3b82f6;
+      color: #ffffff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+    .history-empty-text {
+      text-align: center;
+      padding: 24px 16px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 16px 12px 32px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .card {
+        padding: 16px;
+      }
+      .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .history-meta {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Language Switcher -->
+    <div class="top-bar">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn active" id="btn-lang-zh" onclick="setLanguage('zh')">中文</button>
+        <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">English</button>
+      </div>
+    </div>
+
+    <!-- Header & Notice -->
+    <header>
+      <h1 id="ui-title">課間我想做什麼？</h1>
+      <div class="disclaimer-banner" id="ui-disclaimer">
+        教學模擬活動，不是校方公告
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="card" aria-labelledby="ui-filter-title">
+      <h2 class="filter-section-title" id="ui-filter-title">
+        <span>⚙️ 活動篩選條件</span>
+      </h2>
+
+      <!-- Location -->
+      <div class="form-group">
+        <span class="form-label" id="ui-label-location">活動地點</span>
+        <div class="segmented-group">
+          <div class="segmented-option">
+            <input type="radio" name="location" id="loc-all" value="all" checked>
+            <label for="loc-all" id="ui-loc-all">不限</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="location" id="loc-indoor" value="indoor">
+            <label for="loc-indoor" id="ui-loc-indoor">室內</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="location" id="loc-outdoor" value="outdoor">
+            <label for="loc-outdoor" id="ui-loc-outdoor">室外</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time -->
+      <div class="form-group">
+        <span class="form-label" id="ui-label-time">可用時間</span>
+        <div class="segmented-group">
+          <div class="segmented-option">
+            <input type="radio" name="time" id="time-15" value="15">
+            <label for="time-15" id="ui-time-15">15 分鐘</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="time" id="time-30" value="30" checked>
+            <label for="time-30" id="ui-time-30">30 分鐘</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="time" id="time-60" value="60">
+            <label for="time-60" id="ui-time-60">60 分鐘</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Intensity -->
+      <div class="form-group">
+        <span class="form-label" id="ui-label-energy">活動強度</span>
+        <div class="segmented-group">
+          <div class="segmented-option">
+            <input type="radio" name="energy" id="energy-all" value="all" checked>
+            <label for="energy-all" id="ui-energy-all">不限</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="energy" id="energy-low" value="low">
+            <label for="energy-low" id="ui-energy-low">低強度</label>
+          </div>
+          <div class="segmented-option">
+            <input type="radio" name="energy" id="energy-medium" value="medium">
+            <label for="energy-medium" id="ui-energy-medium">中強度</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="action-buttons">
+        <button type="button" class="btn btn-primary" id="btn-pick" onclick="pickActivity()">
+          🎲 幫我選
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-reset" onclick="resetFilters()">
+          🔄 重設篩選
+        </button>
+      </div>
+    </section>
+
+    <!-- Result Display -->
+    <section class="result-section" aria-live="polite">
+      <div id="result-container">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </section>
+
+    <!-- History -->
+    <section class="history-card" aria-labelledby="ui-history-title">
+      <div class="history-header">
+        <h2 class="history-title" id="ui-history-title">最近 5 次成功抽選</h2>
+        <button type="button" class="btn-clear" id="btn-clear-history" onclick="clearHistory()">
+          清除紀錄
+        </button>
+      </div>
+      <div id="history-list" class="history-list">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Embedded activities data from activities.json (strictly unmodified)
+    const ACTIVITIES = [
+      {
+        "id": "A01",
+        "name_zh": "整理書包",
+        "name_en": "Organize your bag",
+        "location_type": "indoor",
+        "minutes": 10,
+        "energy": "low"
+      },
+      {
+        "id": "A02",
+        "name_zh": "畫一張小卡",
+        "name_en": "Draw a small card",
+        "location_type": "indoor",
+        "minutes": 15,
+        "energy": "low"
+      },
+      {
+        "id": "A03",
+        "name_zh": "寫三句讀書筆記",
+        "name_en": "Write three study notes",
+        "location_type": "indoor",
+        "minutes": 10,
+        "energy": "low"
+      },
+      {
+        "id": "A04",
+        "name_zh": "安靜讀兩頁書",
+        "name_en": "Read two pages quietly",
+        "location_type": "indoor",
+        "minutes": 15,
+        "energy": "low"
+      },
+      {
+        "id": "A05",
+        "name_zh": "排好明日待辦",
+        "name_en": "Plan tomorrow’s tasks",
+        "location_type": "indoor",
+        "minutes": 20,
+        "energy": "low"
+      },
+      {
+        "id": "A06",
+        "name_zh": "整理本機練習檔",
+        "name_en": "Organize practice files",
+        "location_type": "indoor",
+        "minutes": 30,
+        "energy": "medium"
+      },
+      {
+        "id": "A07",
+        "name_zh": "在合適位置慢走",
+        "name_en": "Take a gentle walk in a suitable area",
+        "location_type": "outdoor",
+        "minutes": 15,
+        "energy": "low"
+      },
+      {
+        "id": "A08",
+        "name_zh": "觀察天空並畫草圖",
+        "name_en": "Observe the sky and sketch",
+        "location_type": "outdoor",
+        "minutes": 20,
+        "energy": "low"
+      },
+      {
+        "id": "A09",
+        "name_zh": "在合適位置快走",
+        "name_en": "Take a brisk walk in a suitable area",
+        "location_type": "outdoor",
+        "minutes": 30,
+        "energy": "medium"
+      },
+      {
+        "id": "A10",
+        "name_zh": "規劃小組練習",
+        "name_en": "Plan a group exercise",
+        "location_type": "indoor",
+        "minutes": 45,
+        "energy": "medium"
+      },
+      {
+        "id": "A11",
+        "name_zh": "記錄自然色彩",
+        "name_en": "Record colors in nature",
+        "location_type": "outdoor",
+        "minutes": 45,
+        "energy": "low"
+      },
+      {
+        "id": "A12",
+        "name_zh": "構思下一次社團活動",
+        "name_en": "Brainstorm a future club activity",
+        "location_type": "indoor",
+        "minutes": 60,
+        "energy": "medium"
+      }
+    ];
+
+    // Multilingual texts
+    const I18N = {
+      zh: {
+        pageTitle: "課間我想做什麼？",
+        disclaimer: "教學模擬活動，不是校方公告",
+        filterSectionTitle: "⚙️ 活動篩選條件",
+        labelLocation: "活動地點",
+        labelTime: "可用時間",
+        labelEnergy: "活動強度",
+        locAll: "不限",
+        locIndoor: "室內",
+        locOutdoor: "室外",
+        time15: "15 分鐘",
+        time30: "30 分鐘",
+        time60: "60 分鐘",
+        energyAll: "不限",
+        energyLow: "低強度",
+        energyMedium: "中強度",
+        btnPick: "🎲 幫我選",
+        btnReset: "🔄 重設篩選",
+        placeholder: "請設定上方條件後，點擊「幫我選」開始抽選！",
+        noMatch: "沒有符合條件的活動",
+        resultCategory: "抽選結果",
+        historyTitle: "最近 5 次成功抽選",
+        btnClearHistory: "清除紀錄",
+        emptyHistory: "尚無成功抽選紀錄",
+        badgeLatest: "最新",
+        unitMinutes: "分鐘",
+        locText: {
+          indoor: "室內",
+          outdoor: "室外"
+        },
+        energyText: {
+          low: "低強度",
+          medium: "中強度"
+        }
+      },
+      en: {
+        pageTitle: "What Should I Do During Break?",
+        disclaimer: "Educational simulation activity, not an official school announcement",
+        filterSectionTitle: "⚙️ Activity Filters",
+        labelLocation: "Location",
+        labelTime: "Available Time",
+        labelEnergy: "Activity Intensity",
+        locAll: "All",
+        locIndoor: "Indoor",
+        locOutdoor: "Outdoor",
+        time15: "15 min",
+        time30: "30 min",
+        time60: "60 min",
+        energyAll: "All",
+        energyLow: "Low",
+        energyMedium: "Medium",
+        btnPick: "🎲 Pick for Me",
+        btnReset: "🔄 Reset Filters",
+        placeholder: "Set your filters above and click \"Pick for Me\" to draw an activity!",
+        noMatch: "No matching activities found",
+        resultCategory: "Selected Activity",
+        historyTitle: "Recent 5 Successful Draws",
+        btnClearHistory: "Clear History",
+        emptyHistory: "No draw history yet",
+        badgeLatest: "Latest",
+        unitMinutes: "mins",
+        locText: {
+          indoor: "Indoor",
+          outdoor: "Outdoor"
+        },
+        energyText: {
+          low: "Low",
+          medium: "Medium"
+        }
+      }
+    };
+
+    // State
+    let currentLang = 'zh';
+    let currentResult = null; // null | 'no_match' | activity object
+    let history = []; // Max 5 items
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = (lang === 'zh') ? 'zh-Hant' : 'en';
+
+      // Update switcher buttons
+      document.getElementById('btn-lang-zh').classList.toggle('active', lang === 'zh');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      // Update static texts
+      const t = I18N[lang];
+      document.title = (lang === 'zh') ? "課間我想做什麼？ | Campus Activity Picker" : "What Should I Do During Break? | Activity Picker";
+      document.getElementById('ui-title').textContent = t.pageTitle;
+      document.getElementById('ui-disclaimer').textContent = t.disclaimer;
+      document.getElementById('ui-filter-title').textContent = t.filterSectionTitle;
+      document.getElementById('ui-label-location').textContent = t.labelLocation;
+      document.getElementById('ui-label-time').textContent = t.labelTime;
+      document.getElementById('ui-label-energy').textContent = t.labelEnergy;
+
+      document.getElementById('ui-loc-all').textContent = t.locAll;
+      document.getElementById('ui-loc-indoor').textContent = t.locIndoor;
+      document.getElementById('ui-loc-outdoor').textContent = t.locOutdoor;
+
+      document.getElementById('ui-time-15').textContent = t.time15;
+      document.getElementById('ui-time-30').textContent = t.time30;
+      document.getElementById('ui-time-60').textContent = t.time60;
+
+      document.getElementById('ui-energy-all').textContent = t.energyAll;
+      document.getElementById('ui-energy-low').textContent = t.energyLow;
+      document.getElementById('ui-energy-medium').textContent = t.energyMedium;
+
+      document.getElementById('btn-pick').textContent = t.btnPick;
+      document.getElementById('btn-reset').textContent = t.btnReset;
+
+      document.getElementById('ui-history-title').textContent = t.historyTitle;
+      document.getElementById('btn-clear-history').textContent = t.btnClearHistory;
+
+      // Re-render dynamic areas
+      renderResult();
+      renderHistory();
+    }
+
+    function getSelectedFilters() {
+      const locEl = document.querySelector('input[name="location"]:checked');
+      const timeEl = document.querySelector('input[name="time"]:checked');
+      const energyEl = document.querySelector('input[name="energy"]:checked');
+
+      return {
+        location: locEl ? locEl.value : 'all',
+        maxTime: timeEl ? parseInt(timeEl.value, 10) : 30,
+        energy: energyEl ? energyEl.value : 'all'
+      };
+    }
+
+    function pickActivity() {
+      const filters = getSelectedFilters();
+
+      // Filter activities based on all 3 conditions simultaneously:
+      // 1. location: 'all' or matches activity.location_type
+      // 2. minutes: activity.minutes <= selected maxTime
+      // 3. energy: 'all' or matches activity.energy
+      const matched = ACTIVITIES.filter(item => {
+        const matchLoc = (filters.location === 'all') || (item.location_type === filters.location);
+        const matchTime = item.minutes <= filters.maxTime;
+        const matchEnergy = (filters.energy === 'all') || (item.energy === filters.energy);
+        return matchLoc && matchTime && matchEnergy;
+      });
+
+      if (matched.length === 0) {
+        currentResult = 'no_match';
+      } else {
+        const randomIndex = Math.floor(Math.random() * matched.length);
+        const selected = matched[randomIndex];
+        currentResult = selected;
+
+        // Add to history (newest first, max 5)
+        history.unshift(selected);
+        if (history.length > 5) {
+          history = history.slice(0, 5);
+        }
+      }
+
+      renderResult();
+      renderHistory();
+    }
+
+    function resetFilters() {
+      document.getElementById('loc-all').checked = true;
+      document.getElementById('time-30').checked = true;
+      document.getElementById('energy-all').checked = true;
+      // Note: reset does NOT clear history
+    }
+
+    function clearHistory() {
+      history = [];
+      renderHistory();
+    }
+
+    function renderResult() {
+      const container = document.getElementById('result-container');
+      const t = I18N[currentLang];
+
+      if (currentResult === null) {
+        container.innerHTML = `
+          <div class="result-box result-placeholder">
+            ${escapeHtml(t.placeholder)}
+          </div>
+        `;
+        return;
+      }
+
+      if (currentResult === 'no_match') {
+        container.innerHTML = `
+          <div class="result-box result-empty">
+            ⚠️ ${escapeHtml(t.noMatch)}
+          </div>
+        `;
+        return;
+      }
+
+      const act = currentResult;
+      const actName = (currentLang === 'zh') ? act.name_zh : act.name_en;
+      const locDisplay = t.locText[act.location_type] || act.location_type;
+      const energyDisplay = t.energyText[act.energy] || act.energy;
+
+      container.innerHTML = `
+        <div class="result-box result-success">
+          <div class="result-header">
+            <span class="result-title-label">${escapeHtml(t.resultCategory)}</span>
+            <span class="result-badge-id">${escapeHtml(act.id)}</span>
+          </div>
+          <div class="result-activity-name">${escapeHtml(actName)}</div>
+          <div class="result-meta-tags">
+            <span class="tag">⏱️ ${act.minutes} ${escapeHtml(t.unitMinutes)}</span>
+            <span class="tag">📍 ${escapeHtml(locDisplay)}</span>
+            <span class="tag">⚡ ${escapeHtml(energyDisplay)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history-list');
+      const t = I18N[currentLang];
+
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="history-empty-text">
+            ${escapeHtml(t.emptyHistory)}
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      history.forEach((act, index) => {
+        const isNewest = index === 0;
+        const actName = (currentLang === 'zh') ? act.name_zh : act.name_en;
+        const locDisplay = t.locText[act.location_type] || act.location_type;
+        const energyDisplay = t.energyText[act.energy] || act.energy;
+
+        html += `
+          <div class="history-item ${isNewest ? 'is-newest' : ''}">
+            <div class="history-main">
+              <span class="history-id">${escapeHtml(act.id)}</span>
+              <span class="history-name" title="${escapeHtml(actName)}">
+                ${isNewest ? `<span class="newest-badge">${escapeHtml(t.badgeLatest)}</span>` : ''}
+                ${escapeHtml(actName)}
+              </span>
+            </div>
+            <div class="history-meta">
+              <span>⏱️ ${act.minutes} ${escapeHtml(t.unitMinutes)}</span>
+              <span>•</span>
+              <span>📍 ${escapeHtml(locDisplay)}</span>
+              <span>•</span>
+              <span>⚡ ${escapeHtml(energyDisplay)}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str;
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initial render
+    setLanguage('zh');
+  </script>
+</body>
+</html>
